@@ -3,6 +3,7 @@ from discord.ext import commands
 import os
 
 AUTHORIZED_USERS = os.getenv("AUTHORIZED_USERS", "").split(",")
+INVITE_LINK = os.getenv("INVITE_LINK")
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -18,7 +19,7 @@ class General(commands.Cog):
         if str(interaction.user.id) not in AUTHORIZED_USERS:
             await interaction.response.send_message("You are not authorized to use this command.", ephemeral=True)
             return
-        await interaction.response.send_message(f"https://discord.com/oauth2/authorize?client_id=1076664536918130780&permissions=8&integration_type=0&scope=bot+applications.commands", ephemeral=True)
+        await interaction.response.send_message(INVITE_LINK, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(General(bot))
