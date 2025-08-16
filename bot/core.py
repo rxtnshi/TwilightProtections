@@ -26,7 +26,7 @@ class Bot(commands.Bot):
         await self.tree.sync()
 
     async def on_ready(self):
-        logging.info(f"Bot logged in as {bot.user} (ID: {bot.user.id})")
+        logging.info(f"Successfully logged in as {bot.user} (ID: {bot.user.id})")
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
@@ -49,6 +49,7 @@ class Bot(commands.Bot):
             return
         await self.tree.sync()
         await interaction.response.send_message("Slash commands synced!", ephemeral=True)
+        logging.info(f"Successfully reloaded cogs.")
 
 bot = Bot()
 bot.run(BOT_TOKEN)
