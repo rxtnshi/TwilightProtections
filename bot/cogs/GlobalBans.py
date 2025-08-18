@@ -6,9 +6,9 @@ import discord
 import json
 import logging
 import customlogger
+import BanHandler
 
 from discord.ext import commands
-from BanHandler import add_ban
 from CustomEmbeds import create_embed
 
 AUTHORIZED_USERS = os.getenv("AUTHORIZED_USERS", "").split(",")
@@ -47,12 +47,12 @@ class GlobalBans(commands.Cog):
             return
         
         try:
-            await interaction.guild.ban(user, reason=reason)
+            await interaction.guild.ban(user, reason=f"Action requested by {interaction.user} ({interaction.user.id}). User has been removed from Twlight Protected servers for: {reason}")
         except Exception as error:
             await interaction.response.send_message(embed=create_embed("error", f"Failed to ban user: {error}"))
             return
         
-        add_ban(user.id, reason, interaction.guild_id)
+        BanHandler.add_ban(user.id, reason, interaction.guild_id)
         logging.info(f"{interaction.user} ({interaction.user.id}) has banned {user.name} ({user.id}) for {reason} in {interaction.guild} ({interaction.guild_id})")
 
         await interaction.response.send_message(

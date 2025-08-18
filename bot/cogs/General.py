@@ -26,7 +26,7 @@ class General(commands.Cog):
         if str(interaction.user.id) not in AUTHORIZED_USERS:
             await interaction.response.send_message(":x: You are not authorized to use this command.", ephemeral=True)
             return
-        await interaction.response.send_message(INVITE_LINK, ephemeral=True)\
+        await interaction.response.send_message(INVITE_LINK, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(General(bot))
