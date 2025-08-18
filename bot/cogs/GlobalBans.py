@@ -1,7 +1,15 @@
-import discord
-from discord.ext import commands
-import json
+import sys
 import os
+sys.path.append(os.path.abspath("bot"))
+
+import discord
+import json
+import logging
+import customlogger
+
+from discord.ext import commands
+from BanHandler import add_ban
+from CustomEmbeds import create_embed
 
 AUTHORIZED_USERS = os.getenv("AUTHORIZED_USERS", "").split(",")
 
@@ -32,41 +40,25 @@ class GlobalBans(commands.Cog):
         view = BanMenu(bans)
         await interaction.response.send_message("Select a banned user to view reason:", view=view, ephemeral=True)
 
-    @discord.app_commands.command(name="globalban", description="Show global bans")
+    @discord.app_commands.command(name="globalban", description="Ban a user from all TwilightProtected servers")
     async def ban(self, interaction: discord.Interaction, user: discord.User, reason: str):
         if str(interaction.user.id) not in AUTHORIZED_USERS:
-            await interaction.response.send_message("You are not authorized to use this command.", ephemeral=True)
+            await interaction.response.send_message(":x: You are not authorized to use this command.", ephemeral=True)
             return
         
         try:
             await interaction.guild.ban(user, reason=reason)
         except Exception as error:
-            await interaction.response.send_message(f"Failed to ban user: {error}")
+            await interaction.response.send_message(embed=create_embed("error", f"Failed to ban user: {error}"))
             return
         
-        json_path = os.path.join(os.path.dirname(__file__), "..", "data", "ban_configs.json")
-        if not os.path.exists(json_path):
-            bans = []
-        else:
-            with open(json_path, "r") as f:
-                try:
-                    bans = json.load(f)
-                except json.JSONDecodeError:
-                    bans = []
-
-        ban_entry = {
-            "user_id": str(user.id),
-            "reason": reason,
-            "guild_id": str(interaction.guild.id)
-        }
-        bans.append(ban_entry)
-        with open(json_path, "w") as f:
-            json.dump(bans, f, indent=2)
+        add_ban(user.id, reason, interaction.guild_id)
+        logging.info(f"{interaction.user} ({interaction.user.id}) has banned {user.name} ({user.id}) for {reason} in {interaction.guild} ({interaction.guild_id})")
 
         await interaction.response.send_message(
-            f"User {user.mention} has been banned from Twilight Protected servers for: {reason}."
+            embed=create_embed("ban",f"User {user.mention} has been added to the ban list for `{reason}` and has been removed from TwilightProtected servers.")
         )
-        
+
         
 
 async def setup(bot):

@@ -23,6 +23,7 @@ class Bot(commands.Bot):
             if filename.endswith(".py"):
                 await self.load_extension(f"bot.cogs.{filename[:-3]}")
                 logging.info(f"Loaded cog: {filename}")
+                
         await self.tree.sync()
 
     async def on_ready(self):
@@ -42,14 +43,6 @@ class Bot(commands.Bot):
             await ctx.send("An error occurred.")
             logging.error(f"Error: {error}")
         
-    @discord.app_commands.command(name="sync", description="Syncs new slash commands")
-    async def sync_commands(self, interaction: discord.Interaction):
-        if str(interaction.user.id) not in AUTHORIZED_USERS:
-            await interaction.response.send_message("You are not authorized to use this command.", ephemeral=True)
-            return
-        await self.tree.sync()
-        await interaction.response.send_message("Slash commands synced!", ephemeral=True)
-        logging.info(f"Successfully reloaded cogs.")
 
 bot = Bot()
 bot.run(BOT_TOKEN)
