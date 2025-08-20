@@ -1,5 +1,6 @@
 import json
 import os
+import discord
 
 def add_ban(userid, reason, guildid):
     json_path = os.path.join(os.path.dirname(__file__), "data", "ban_configs.json")
@@ -35,4 +36,12 @@ def remove_ban(userid):
             bans = []
             return "Failed to load ban config. At this time I cannot edit the ban file."
         
-    remove_banned_user = [] # finish this later
+    update_bans = [ban for ban in bans if ban.get("user_id") != str(userid)]
+
+    if len(update_bans) == len(bans):
+        return False
+    
+    with open(json_path, "w") as f:
+        json.dump(update_bans, f, indent=2)
+
+    return True

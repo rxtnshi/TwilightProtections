@@ -45,7 +45,7 @@ class GlobalBans(commands.Cog):
         if str(interaction.user.id) not in AUTHORIZED_USERS:
             await interaction.response.send_message(":x: You are not authorized to use this command.", ephemeral=True)
             return
-        
+
         try:
             await interaction.guild.ban(user, reason=f"Action requested by {interaction.user} ({interaction.user.id}). User has been removed from Twlight Protected servers for: {reason}")
         except Exception as error:
