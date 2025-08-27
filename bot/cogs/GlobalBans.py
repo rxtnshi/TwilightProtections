@@ -59,7 +59,24 @@ class GlobalBans(commands.Cog):
             embed=create_embed("ban",f"User {user.mention} has been added to the ban list for `{reason}` and has been removed from TwilightProtected servers.")
         )
 
+    @discord.app_commands.command(name="globanunban", description="Unban a user from all TwilightProtected servers")
+    async def unban(self, interaction: discord.Interaction, user: discord.User, reason: str):
+        if str(interaction.user.id) not in AUTHORIZED_USERS:
+            await interaction.response.send_message(":x: You are not authorized to use this command.", ephemeral=True)
+            return
         
+        try:
+            await interaction.guild.unban(user, reason=None)
+        except Exception as error:
+            await interaction.response.send_message(embed=create_embed("error", f"Failed to unban user: {error}"))
+            return
+        
+        BanHandler.remove_ban(user.id)
+        logging.info(f"{interaction.user} ({interaction.user.id}) has unbanned {user.name} ({user.id}) in {interaction.guild} ({interaction.guild_id})")
+
+        await interaction.response.send_message(
+            embed=create_embed("ban",f"User {user.mention} has been added to the ban list for `{reason}` and has been removed from TwilightProtected servers.")
+        )
 
 async def setup(bot):
     await bot.add_cog(GlobalBans(bot))
